@@ -18,6 +18,7 @@ from unstructured.documents.coordinates import (
 )
 from unstructured.documents.elements import (
     UUID,
+    CheckBox,
     ConsolidationStrategy,
     CoordinatesMetadata,
     DataSourceMetadata,
@@ -27,6 +28,7 @@ from unstructured.documents.elements import (
     Points,
     RegexMetadata,
     Text,
+    Title,
 )
 
 
@@ -69,6 +71,14 @@ def test_text_element_apply_multiple_cleaners():
     text_element = Text(text="[1] \u2022 A Textbook on Crocodile Habitats")
     text_element.apply(*cleaners)
     assert str(text_element) == "A Textbook on Crocodile Habitats"
+
+
+def test_non_text_elements_are_serializable_to_text():
+    element = CheckBox()
+    assert hasattr(element, "text")
+    assert element.text is not None
+    assert element.text == ""
+    assert str(element) == ""
 
 
 def test_apply_raises_if_func_does_not_produce_string():
@@ -378,6 +388,22 @@ class DescribeElementMetadata:
                 "url": "https://www.nih.gov/about-nih/who-we-are/nih-director",
                 "date_created": "2023-11-09",
             },
+            "page_number": 2,
+        }
+
+    def and_it_serializes_an_orig_elements_sub_object_to_base64_when_it_is_present(self):
+        meta = ElementMetadata(
+            category_depth=1,
+            orig_elements=[Title("Lorem"), Text("Lorem Ipsum")],
+            page_number=2,
+        )
+        assert meta.to_dict() == {
+            "category_depth": 1,
+            "orig_elements": (
+                "eJyFzcsKwjAQheFXKVm7yDS3xjcQXNaViKTJjBR6o46glr67zVI3Lmf4Dv95EdhhjwNf2yT2hYDGUaWt"
+                "JVm5WDoqNUL0UoJrqtLHJHaF6JFDChw2v6zbzfjkvD2OM/YZ8GvC/Khb7lBs5LcilUwRyCsblQYTiBQp"
+                "ZRxYZcCA/1spDtP98dU6DTEw3sa5fWOqs10vH0cLQn0="
+            ),
             "page_number": 2,
         }
 

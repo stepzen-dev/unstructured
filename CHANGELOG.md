@@ -1,9 +1,37 @@
-## 0.13.0-dev10
+## 0.13.2
+
+### Enhancements
+
+### Features
+
+### Fixes
+
+* **Brings back missing word list files** that caused `partition` failures in 0.13.1.
+
+## 0.13.1
+
+### Enhancements
+
+* **Drop constraint on pydantic, supporting later versions** All dependencies has pydantic pinned at an old version. This explicit pin was removed, allowing the latest version to be pulled in when requirements are compiled.
+
+### Features
+
+* **Add a set of new `ElementType`s to extend future element types**
+
+### Fixes
+
+* **Fix `partition_html()` swallowing some paragraphs**. The `partition_html()` only considers elements with limited depth to avoid becoming the text representation of a giant div. This fix increases the limit value.
+* **Fix SFTP** Adds flag options to SFTP connector on whether to use ssh keys / agent, with flag values defaulting to False. This is to prevent looking for ssh files when using username and password. Currently, username and password are required, making that always the case.
+
+## 0.13.0
 
 ### Enhancements
 
 * **Add `.metadata.is_continuation` to text-split chunks.** `.metadata.is_continuation=True` is added to second-and-later chunks formed by text-splitting an oversized `Table` element but not to their counterpart `Text` element splits. Add this indicator for `CompositeElement` to allow text-split continuation chunks to be identified for downstream processes that may wish to skip intentionally redundant metadata values in continuation chunks.
 * **Add `compound_structure_acc` metric to table eval.** Add a new property to `unstructured.metrics.table_eval.TableEvaluation`: `composite_structure_acc`, which is computed from the element level row and column index and content accuracy scores
+* **Add `.metadata.orig_elements` to chunks.** `.metadata.orig_elements: list[Element]` is added to chunks during the chunking process (when requested) to allow access to information from the elements each chunk was formed from. This is useful for example to recover metadata fields that cannot be consolidated to a single value for a chunk, like `page_number`, `coordinates`, and `image_base64`.
+* **Add `--include_orig_elements` option to Ingest CLI.** By default, when chunking, the original elements used to form each chunk are added to `chunk.metadata.orig_elements` for each chunk. * The `include_orig_elements` parameter allows the user to turn off this behavior to produce a smaller payload when they don't need this metadata.
+* **Add Google VertexAI embedder** Adds VertexAI embeddings to support embedding via Google Vertex AI.
 
 ### Features
 
@@ -12,12 +40,13 @@
 
 ### Fixes
 
+* **Fix `clean_pdfminer_inner_elements()` to remove only pdfminer (embedded) elements merged with inferred elements**. Previously, some embedded elements were removed even if they were not merged with inferred elements. Now, only embedded elements that are already merged with inferred elements are removed.
 * **Clarify IAM Role Requirement for GCS Platform Connectors**. The GCS Source Connector requires Storage Object Viewer and GCS Destination Connector requires Storage Object Creator IAM roles.
 * **Change table extraction defaults** Change table extraction defaults in favor of using `skip_infer_table_types` parameter and reflect these changes in documentation.
 * **Fix OneDrive dates with inconsistent formatting** Adds logic to conditionally support dates returned by office365 that may vary in date formatting or may be a datetime rather than a string. See previous fix for SharePoint
 * **Adds tracking for AstraDB** Adds tracking info so AstraDB can see what source called their api.
 * **Support AWS Bedrock Embeddings in ingest CLI** The configs required to instantiate the bedrock embedding class are now exposed in the api and the version of boto being used meets the minimum requirement to introduce the bedrock runtime required to hit the service.
->>>>>>> 6a63c941c (bump changelog)
+* **Change MongoDB redacting** Original redact secrets solution is causing issues in platform. This fix uses our standard logging redact solution.
 
 ## 0.12.6
 
